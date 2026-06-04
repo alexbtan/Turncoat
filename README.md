@@ -87,14 +87,10 @@ lib/
 This repo includes `netlify.toml` and uses `@netlify/plugin-nextjs`. Connect the
 repo in Netlify and deploy with the default Next.js settings.
 
-> **Note on the in-memory store:** game state lives in process memory
-> (`lib/store.ts`). This works perfectly when the app runs as a single process
-> (local dev, `netlify dev`, or any single-instance host). On Netlify's
-> serverless functions, memory is not guaranteed to be shared across
-> invocations, so for reliable production multiplayer swap `lib/store.ts` to a
-> shared backend such as [Netlify Blobs](https://docs.netlify.com/blobs/overview/)
-> (free) or Redis. The store is isolated behind a small async interface
-> (`get` / `save` / `exists` / `delete`) specifically to make this a one-file change.
+> **Storage:** On Netlify, rooms are persisted with [Netlify Blobs](https://docs.netlify.com/blobs/overview/)
+> (`lib/store-netlify.ts`) so create/join/poll work across serverless invocations.
+> Local `npm run dev` uses an in-memory Map (`lib/store-memory.ts`). For local testing
+> with Blobs, run `netlify dev` instead.
 
 ## Scripts
 
