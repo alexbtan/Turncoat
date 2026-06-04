@@ -1,4 +1,4 @@
-// Classic Codenames-style word list. Used to generate the 25-card board.
+// Classic word-association list. Used to generate the 25-card board.
 export const WORDS: string[] = [
   "AFRICA", "AGENT", "AIR", "ALIEN", "ALPS", "AMAZON", "AMBULANCE", "AMERICA",
   "ANGEL", "ANTARCTICA", "APPLE", "ARM", "ATLANTIS", "AUSTRALIA", "AZTEC",

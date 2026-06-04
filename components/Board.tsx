@@ -9,40 +9,37 @@ interface Props {
 }
 
 function tileClasses(card: ClientCard, keyView: boolean): string {
-  // Revealed cards always show their true color.
   if (card.revealed) {
     switch (card.type) {
       case "red":
-        return "bg-red-600 text-white border-red-700";
+        return "border-[var(--tc-red-border)] bg-[var(--tc-red)] text-[var(--tc-surface-raised)]";
       case "blue":
-        return "bg-blue-600 text-white border-blue-700";
+        return "border-[var(--tc-blue-border)] bg-[var(--tc-blue)] text-[var(--tc-surface-raised)]";
       case "agent":
-        return "bg-emerald-600 text-white border-emerald-700";
+        return "border-[var(--tc-green-border)] bg-[var(--tc-green)] text-[var(--tc-surface-raised)]";
       case "assassin":
-        return "bg-slate-950 text-slate-500 border-black";
+        return "border-[var(--tc-assassin-bg)] bg-[var(--tc-assassin-bg)] text-[var(--tc-muted)]";
       default:
-        return "bg-amber-200/80 text-amber-950 border-amber-300";
+        return "border-[var(--tc-neutral-border)] bg-[var(--tc-neutral-bg)] text-[var(--tc-text)]";
     }
   }
 
-  // Spymaster/mole sees the key as a colored tint on unrevealed cards.
   if (keyView && card.type) {
     switch (card.type) {
       case "red":
-        return "bg-red-500/20 text-red-100 border-red-500/50 ring-1 ring-red-500/30";
+        return "border-[var(--tc-red-border)] bg-[var(--tc-red-bg)] text-[var(--tc-red)]";
       case "blue":
-        return "bg-blue-500/20 text-blue-100 border-blue-500/50 ring-1 ring-blue-500/30";
+        return "border-[var(--tc-blue-border)] bg-[var(--tc-blue-bg)] text-[var(--tc-blue)]";
       case "agent":
-        return "bg-emerald-500/20 text-emerald-100 border-emerald-500/50 ring-1 ring-emerald-500/30";
+        return "border-[var(--tc-green-border)] bg-[var(--tc-green-bg)] text-[var(--tc-green)]";
       case "assassin":
-        return "bg-slate-800 text-slate-100 border-slate-500 ring-2 ring-slate-400";
+        return "border-[var(--tc-assassin-bg)] bg-[var(--tc-assassin-key-bg)] text-[var(--tc-text)] font-semibold";
       default:
-        return "bg-amber-500/10 text-amber-100 border-amber-500/30";
+        return "border-[var(--tc-neutral-border)] bg-[var(--tc-neutral-bg)] text-[var(--tc-muted)]";
     }
   }
 
-  // Guesser / unknown view.
-  return "bg-slate-800 text-slate-100 border-slate-700 hover:border-slate-500";
+  return "border-[var(--tc-border)] bg-[var(--tc-surface-raised)] text-[var(--tc-text)] hover:border-[var(--tc-border-strong)]";
 }
 
 export function Board({ room, canGuess, onGuess }: Props) {
@@ -53,33 +50,37 @@ export function Board({ room, canGuess, onGuess }: Props) {
     room.players.find((p) => p.id === id)?.name ?? "?";
 
   return (
-    <div className="grid grid-cols-5 gap-2 sm:gap-3">
+    <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
       {room.board.map((card, i) => {
         const clickable = canGuess && !card.revealed;
         const voters = isCoop ? room.cardVotes?.[i] ?? [] : [];
+        const hasVotes = voters.length > 0 && !card.revealed;
+
         return (
           <button
             key={i}
+            type="button"
             disabled={!clickable}
             onClick={() => clickable && onGuess(i)}
-            className={`relative flex aspect-[5/3] items-center justify-center rounded-lg border px-1 text-center text-[10px] font-bold uppercase leading-tight tracking-wide transition sm:text-sm ${tileClasses(
+            className={`relative flex aspect-[5/3] items-center justify-center rounded border px-0.5 text-center text-[9px] font-semibold uppercase leading-tight tracking-wide transition sm:text-xs ${tileClasses(
               card,
               keyView,
-            )} ${clickable ? "cursor-pointer hover:scale-[1.03]" : "cursor-default"} ${
-              card.revealed ? "opacity-90" : ""
-            } ${voters.length > 0 && !card.revealed ? "ring-2 ring-yellow-400/70" : ""}`}
+            )} ${clickable ? "cursor-pointer active:translate-y-px" : "cursor-default"} ${
+              hasVotes ? "outline outline-2 outline-offset-1 outline-[var(--tc-border-strong)]" : ""
+            }`}
           >
-            {card.type === "assassin" && card.revealed ? "ASSASSIN" : card.word}
+            {card.type === "assassin" && card.revealed ? "Assassin" : card.word}
 
-            {/* Co-op vote chips */}
-            {voters.length > 0 && !card.revealed && (
-              <span className="absolute -right-1 -top-1 flex gap-0.5">
+            {hasVotes && (
+              <span className="absolute -right-1 -top-1 flex gap-px">
                 {voters.map((id) => (
                   <span
                     key={id}
                     title={nameOf(id)}
-                    className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-slate-900 ${
-                      id === youId ? "bg-yellow-300" : "bg-yellow-400/90"
+                    className={`flex h-4 w-4 items-center justify-center rounded-sm border border-[var(--tc-border-strong)] text-[8px] font-bold ${
+                      id === youId
+                        ? "bg-[var(--tc-accent)] text-[var(--tc-surface-raised)]"
+                        : "bg-[var(--tc-warn-bg)] text-[var(--tc-text)]"
                     }`}
                   >
                     {nameOf(id).charAt(0).toUpperCase()}

@@ -2,7 +2,7 @@ import type { ClientRoom, GameMode, Role, Team } from "./types";
 
 // ---- Local identity helpers (client only) ----
 
-const NAME_KEY = "codenames:name";
+const NAME_KEY = "turncoat:name";
 
 export function getStoredName(): string {
   if (typeof window === "undefined") return "";
@@ -15,7 +15,7 @@ export function setStoredName(name: string): void {
 }
 
 function playerKey(code: string): string {
-  return `codenames:player:${code.toUpperCase()}`;
+  return `turncoat:player:${code.toUpperCase()}`;
 }
 
 export function getStoredPlayerId(code: string): string | null {
@@ -129,7 +129,7 @@ export function saveWordSettings(
   });
 }
 
-// ---- Co-op mole mode ----
+// ---- Turncoat mode ----
 
 export function setMode(
   code: string,

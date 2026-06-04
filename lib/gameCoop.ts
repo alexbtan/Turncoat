@@ -76,10 +76,10 @@ export function validateCoopLobby(room: Room): Result {
   const spymasters = room.players.filter((p) => p.role === "spymaster");
   const gs = guessers(room);
   if (spymasters.length !== 1) {
-    return { ok: false, error: "Co-op needs exactly 1 spymaster." };
+    return { ok: false, error: "Turncoat mode needs exactly 1 spymaster." };
   }
   if (gs.length !== 3) {
-    return { ok: false, error: "Co-op needs exactly 3 guessers." };
+    return { ok: false, error: "Turncoat mode needs exactly 3 guessers." };
   }
   return { ok: true };
 }
@@ -114,7 +114,7 @@ export function setCoopRole(
     return { ok: false, error: "Can only change roles in the lobby." };
   }
   if (role !== "spymaster" && role !== "guesser") {
-    return { ok: false, error: "Invalid co-op role." };
+    return { ok: false, error: "Invalid role for Turncoat mode." };
   }
   player.team = null;
   player.role = role;
@@ -160,7 +160,7 @@ export function startCoopGame(room: Room): Result {
 
   addLog(
     room,
-    `Mission started. Find all ${COOP_AGENTS} agents within ${room.maxRounds} rounds. One of you is the mole...`,
+    `Mission started. Find all ${COOP_AGENTS} agents within ${room.maxRounds} rounds. One of you is the turncoat...`,
   );
   return { ok: true };
 }
@@ -213,7 +213,7 @@ function endCoopRound(room: Room, reason: string): void {
   if (room.roundsRemaining <= 0 && agentsRemaining(room) > 0) {
     room.phase = "finished";
     room.coopOutcome = "mole";
-    addLog(room, "Out of rounds! The mole wins.");
+    addLog(room, "Out of rounds! The turncoat wins.");
   }
 }
 
@@ -223,7 +223,7 @@ function revealCoopCard(room: Room, index: number): void {
   clearVotes(room);
 
   if (card.type === "assassin") {
-    addLog(room, `Revealed "${card.word}" — the ASSASSIN! The mole wins.`);
+    addLog(room, `Revealed "${card.word}" — the ASSASSIN! The turncoat wins.`);
     room.phase = "finished";
     room.coopOutcome = "mole";
     room.clue = null;
@@ -345,7 +345,7 @@ export function coopAccuse(room: Room, player: Player): Result {
       room.coopOutcome = "mole";
       addLog(
         room,
-        "The guessers accused an innocent spymaster — the mole wins!",
+        "The guessers accused an innocent spymaster — the turncoat wins!",
       );
     }
   }

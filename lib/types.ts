@@ -8,7 +8,7 @@ export type Phase = "lobby" | "playing" | "finished";
 
 export type GameMode = "classic" | "coop";
 
-/** Who wins a co-op game once it finishes. */
+/** Who wins a Turncoat mode game once it finishes. */
 export type CoopOutcome = "agents" | "mole";
 
 export interface Card {
@@ -55,7 +55,7 @@ export interface Room {
   /** Which ruleset this room is playing. */
   gameMode: GameMode;
 
-  // ---- Co-op mole mode (only meaningful when gameMode === "coop") ----
+  // ---- Turncoat mode (only meaningful when gameMode === "coop") ----
   /** Total rounds (clues) the team gets to find all agents. */
   maxRounds: number;
   /** Rounds left before the mission times out. */
@@ -68,7 +68,7 @@ export interface Room {
   passVotes: string[];
   /** Guesser ids currently accusing the spymaster of being the mole. */
   accusations: string[];
-  /** Who won once a co-op game is finished. */
+  /** Who won once a Turncoat mode game is finished. */
   coopOutcome: CoopOutcome | null;
 
   createdAt: number;
@@ -86,7 +86,7 @@ export interface ClientCard {
   type?: CardType;
 }
 
-/** The viewer's own player record, with co-op secret info attached. */
+/** The viewer's own player record, with Turncoat mode secret info attached. */
 export interface ClientSelf extends Player {
   /** True only for the mole, sent only to that player (or to all at game end). */
   isMole?: boolean;
@@ -109,7 +109,7 @@ export interface ClientRoom {
   customWordPercent: number;
   gameMode: GameMode;
 
-  // ---- Co-op mole mode (present when gameMode === "coop") ----
+  // ---- Turncoat mode (present when gameMode === "coop") ----
   maxRounds?: number;
   roundsRemaining?: number;
   agentsRemaining?: number;

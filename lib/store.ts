@@ -9,14 +9,14 @@ import type { Room } from "./types";
  * survives Next.js dev hot-reloads (which re-evaluate modules).
  */
 const globalForStore = globalThis as unknown as {
-  __codenamesRooms?: Map<string, Room>;
+  __turncoatRooms?: Map<string, Room>;
 };
 
 const rooms: Map<string, Room> =
-  globalForStore.__codenamesRooms ?? new Map<string, Room>();
+  globalForStore.__turncoatRooms ?? new Map<string, Room>();
 
-if (!globalForStore.__codenamesRooms) {
-  globalForStore.__codenamesRooms = rooms;
+if (!globalForStore.__turncoatRooms) {
+  globalForStore.__turncoatRooms = rooms;
 }
 
 // Rooms older than this (no updates) are eligible for cleanup.

@@ -6,7 +6,6 @@ import type { ClientRoom, Player, Role, Team } from "@/lib/types";
 
 interface Props {
   room: ClientRoom;
-  /** Real logged-in player (for host checks and “you” label). */
   hostPlayerId: string;
   onPickTeam: (team: Team, role: Role) => void;
   onStart: () => void;
@@ -27,46 +26,41 @@ function TeamColumn({
   playerId: string;
   onPickTeam: (team: Team, role: Role) => void;
 }) {
-  const accent =
-    team === "red"
-      ? "border-red-500/40 bg-red-500/5"
-      : "border-blue-500/40 bg-blue-500/5";
-  const heading = team === "red" ? "text-red-400" : "text-blue-400";
+  const isRed = team === "red";
+  const panelClass = isRed
+    ? "border-l-4 border-l-[var(--tc-red)] bg-[var(--tc-red-bg)]"
+    : "border-l-4 border-l-[var(--tc-blue)] bg-[var(--tc-blue-bg)]";
+  const headingClass = isRed ? "text-[var(--tc-red)]" : "text-[var(--tc-blue)]";
+  const btnClass = isRed ? "tc-btn-secondary" : "tc-btn-secondary";
+
   const members = room.players.filter((p) => p.team === team);
   const spymasters = members.filter((p) => p.role === "spymaster");
   const operatives = members.filter((p) => p.role === "operative");
 
-  const btn =
-    team === "red"
-      ? "bg-red-500/20 hover:bg-red-500/30 border-red-500/40 text-red-200"
-      : "bg-blue-500/20 hover:bg-blue-500/30 border-blue-500/40 text-blue-200";
-
   return (
-    <div className={`flex-1 rounded-xl border p-4 ${accent}`}>
-      <h3 className={`mb-3 text-lg font-bold uppercase tracking-wide ${heading}`}>
+    <div className={`tc-panel flex-1 ${panelClass}`}>
+      <h3 className={`mb-3 text-base font-bold capitalize ${headingClass}`}>
         {team} team
       </h3>
 
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Spymaster
-      </div>
-      <PlayerList players={spymasters} playerId={playerId} empty="No spymaster" />
+      <p className="tc-section-title mb-1">Spymaster</p>
+      <PlayerList players={spymasters} playerId={playerId} empty="—" />
 
-      <div className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Operatives
-      </div>
-      <PlayerList players={operatives} playerId={playerId} empty="No operatives" />
+      <p className="tc-section-title mb-1 mt-4">Operatives</p>
+      <PlayerList players={operatives} playerId={playerId} empty="—" />
 
       <div className="mt-4 flex gap-2">
         <button
+          type="button"
           onClick={() => onPickTeam(team, "spymaster")}
-          className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${btn}`}
+          className={`${btnClass} flex-1 text-xs`}
         >
           Spymaster
         </button>
         <button
+          type="button"
           onClick={() => onPickTeam(team, "operative")}
-          className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${btn}`}
+          className={`${btnClass} flex-1 text-xs`}
         >
           Operative
         </button>
@@ -85,18 +79,18 @@ function PlayerList({
   empty: string;
 }) {
   if (players.length === 0) {
-    return <p className="text-sm italic text-slate-600">{empty}</p>;
+    return <p className="tc-muted text-sm">{empty}</p>;
   }
   return (
-    <ul className="space-y-1">
+    <ul className="space-y-0.5">
       {players.map((p) => (
-        <li key={p.id} className="text-sm text-slate-200">
+        <li key={p.id} className="text-sm">
           {p.name}
           {isBotPlayer(p) && (
-            <span className="ml-1 text-xs text-amber-500/80">(bot)</span>
+            <span className="tc-muted ml-1 text-xs">[bot]</span>
           )}
           {p.id === playerId && (
-            <span className="ml-1 text-xs text-slate-500">(you)</span>
+            <span className="tc-muted ml-1 text-xs">(you)</span>
           )}
         </li>
       ))}
@@ -128,7 +122,7 @@ export function Lobby({
         busy={busy}
       />
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <TeamColumn
           team="red"
           room={room}
@@ -144,8 +138,8 @@ export function Lobby({
       </div>
 
       {unassigned.length > 0 && (
-        <div className="mb-6 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm text-slate-400">
-          Waiting to pick a team:{" "}
+        <div className="tc-panel-inset mb-6 text-sm">
+          <span className="tc-muted">No team yet: </span>
           {unassigned.map((p) => p.name).join(", ")}
         </div>
       )}
@@ -155,18 +149,20 @@ export function Lobby({
           <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
             {canAddBots && (
               <button
+                type="button"
                 onClick={onAddTestPlayers}
                 disabled={busy}
-                className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/25 disabled:opacity-50"
+                className="tc-btn-ghost"
               >
                 Add test players
               </button>
             )}
             {canRandomize && (
               <button
+                type="button"
                 onClick={onRandomizeTeams}
                 disabled={busy}
-                className="rounded-lg border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:opacity-50"
+                className="tc-btn-secondary"
               >
                 Randomize teams
               </button>
@@ -176,24 +172,23 @@ export function Lobby({
 
         {isHost ? (
           <button
+            type="button"
             onClick={onStart}
             disabled={busy}
-            className="rounded-lg bg-gradient-to-r from-red-500 to-blue-500 px-8 py-3 font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+            className="tc-btn-primary px-10"
           >
-            {busy ? "Starting..." : "Start game"}
+            {busy ? "Starting…" : "Start game"}
           </button>
         ) : (
-          <p className="text-sm text-slate-400">
-            Waiting for the host to start the game...
-          </p>
+          <p className="tc-muted text-sm">Waiting for the host to start…</p>
         )}
-        <p className="text-center text-xs text-slate-600">
+        <p className="tc-muted max-w-sm text-center text-xs leading-relaxed">
           Each team needs at least one spymaster and one operative.
           {isHost && canAddBots && (
             <>
               {" "}
-              Solo testing? Add test players, randomize teams, then use the
-              player switcher to control each role.
+              For solo testing: add bots, randomize teams, then use the player
+              switcher above.
             </>
           )}
         </p>

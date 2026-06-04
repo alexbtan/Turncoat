@@ -96,6 +96,11 @@ export default function RoomPage() {
 
   const isCoop = room?.gameMode === "coop";
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("tc-theme-turncoat", isCoop);
+    return () => document.documentElement.classList.remove("tc-theme-turncoat");
+  }, [isCoop]);
+
   // Classic actions
   const onClue = (word: string, number: number) =>
     viewAs &&
@@ -133,10 +138,11 @@ export default function RoomPage() {
   if (joinError) {
     return (
       <CenteredMessage>
-        <p className="text-red-400">{joinError}</p>
+        <p className="tc-error">{joinError}</p>
         <button
+          type="button"
           onClick={() => router.push("/")}
-          className="mt-4 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm"
+          className="tc-btn-secondary mt-4"
         >
           Back home
         </button>
@@ -147,8 +153,8 @@ export default function RoomPage() {
   if (joining || !room) {
     return (
       <CenteredMessage>
-        <p className="text-slate-400">
-          {error ? error : "Joining room..."}
+        <p className="tc-muted">
+          {error ? error : "Joining room…"}
         </p>
       </CenteredMessage>
     );
@@ -164,31 +170,33 @@ export default function RoomPage() {
       !!room.clue;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <main className="tc-page max-w-6xl py-6">
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--tc-border)] pb-4">
         <button
+          type="button"
           onClick={() => router.push("/")}
-          className="text-xl font-black tracking-tight text-slate-200 hover:text-white"
+          className="tc-link text-xl"
         >
-          CODENAMES
+          Turncoat
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-400">Room</span>
+          <span className="tc-muted text-sm">Room</span>
           <button
+            type="button"
             onClick={copyCode}
             title="Copy code"
-            className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 font-mono text-lg tracking-[0.3em] text-slate-100 transition hover:border-slate-500"
+            className="tc-input-mono !w-auto px-3 py-1.5 text-base hover:border-[var(--tc-border-strong)]"
           >
             {code}
           </button>
-          <span className="w-12 text-xs text-emerald-400">
-            {copied ? "Copied!" : ""}
+          <span className="tc-muted w-14 text-xs">
+            {copied ? "Copied" : ""}
           </span>
         </div>
       </header>
 
       {actionError && (
-        <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+        <div className="tc-panel mb-4 border-l-4 border-l-[var(--tc-red)] bg-[var(--tc-danger-bg)] text-sm text-[var(--tc-danger)]">
           {actionError}
         </div>
       )}

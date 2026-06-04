@@ -41,151 +41,148 @@ export function GamePanelCoop({
 
   return (
     <div className="space-y-4">
-      {/* Mission status */}
       <div className="flex gap-3">
-        <StatBox label="Agents left" value={agentsLeft} tone="emerald" />
-        <StatBox label="Rounds left" value={roundsLeft} tone="violet" />
+        <StatBox label="Agents left" value={agentsLeft} variant="green" />
+        <StatBox label="Rounds left" value={roundsLeft} variant="blue" />
       </div>
 
-      {/* Turn / clue banner */}
       {playing && (
-        <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-4 text-center">
+        <div className="tc-panel text-center">
           {room.clue ? (
             <>
-              <p className="text-sm uppercase tracking-wide text-slate-400">
-                Clue in play
-              </p>
-              <p className="mt-1 text-lg font-bold text-slate-100">
+              <p className="tc-section-title">Clue in play</p>
+              <p className="mt-1 text-lg font-bold">
                 &ldquo;{room.clue.word}&rdquo; &middot; {room.clue.number}
-                <span className="ml-2 text-sm font-normal text-slate-400">
+                <span className="tc-muted ml-2 text-sm font-normal">
                   ({room.clue.guessesRemaining} guess
                   {room.clue.guessesRemaining === 1 ? "" : "es"} left)
                 </span>
               </p>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="tc-muted mt-2 text-xs">
                 A card is revealed when 2 of 3 guessers vote for it.
               </p>
             </>
           ) : (
-            <p className="text-sm italic text-slate-400">
-              Waiting for the spymaster&apos;s clue...
+            <p className="tc-muted text-sm italic">
+              Waiting for the spymaster&apos;s clue…
             </p>
           )}
         </div>
       )}
 
-      {/* Mole briefing (only the mole sees this while playing) */}
       {playing && you?.isMole && (
-        <div className="rounded-xl border border-red-500/50 bg-red-500/15 p-4">
-          <p className="text-sm font-bold uppercase tracking-wide text-red-300">
-            You are the MOLE
+        <div className="tc-panel border-l-4 border-l-[var(--tc-red)] bg-[var(--tc-danger-bg)]">
+          <p className="text-sm font-bold uppercase tracking-wide text-[var(--tc-danger)]">
+            You are the turncoat
           </p>
-          <p className="mt-1 text-xs text-red-100/80">
-            You can see the full key. Make the team LOSE — get the assassin
+          <p className="tc-muted mt-1 text-xs leading-relaxed">
+            You can see the full key. Make the team lose — get the assassin
             revealed or run out the round clock.
             {isSpymaster
               ? " As spymaster, give clues just bad enough to fail while looking helpful."
-              : " As a guesser, swing votes onto bystanders/the assassin, or bait the others into wrongly accusing the spymaster."}
+              : " As a guesser, swing votes onto bystanders or the assassin, or bait the others into wrongly accusing the spymaster."}
           </p>
         </div>
       )}
 
-      {/* Finished banner */}
       {finished && room.coopOutcome && (
         <div
-          className={`rounded-xl border p-5 text-center ${
+          className={`tc-panel text-center ${
             room.coopOutcome === "agents"
-              ? "border-emerald-500 bg-emerald-500/20"
-              : "border-red-500 bg-red-500/20"
+              ? "border-l-4 border-l-[var(--tc-green)] bg-[var(--tc-green-bg)]"
+              : "border-l-4 border-l-[var(--tc-red)] bg-[var(--tc-red-bg)]"
           }`}
         >
-          <p className="text-2xl font-black text-slate-100">
-            {room.coopOutcome === "agents" ? "Mission success!" : "The mole wins!"}
+          <p className="tc-display text-2xl font-bold">
+            {room.coopOutcome === "agents"
+              ? "Mission success!"
+              : "The turncoat wins!"}
           </p>
           {room.moleReveal && (
-            <p className="mt-2 text-sm text-slate-200">
-              The mole was{" "}
+            <p className="mt-2 text-sm">
+              The turncoat was{" "}
               <span className="font-bold">{nameOf(room.moleReveal.playerId)}</span>{" "}
               ({room.moleReveal.role}).
             </p>
           )}
           {isHost ? (
             <button
+              type="button"
               onClick={onReset}
               disabled={busy}
-              className="mt-3 rounded-lg bg-slate-100 px-6 py-2 font-semibold text-slate-900 transition hover:bg-white disabled:opacity-50"
+              className="tc-btn-primary mt-3"
             >
-              {busy ? "..." : "Play again"}
+              {busy ? "…" : "Play again"}
             </button>
           ) : (
-            <p className="mt-2 text-sm text-slate-300">
-              Waiting for host to start a new mission...
+            <p className="tc-muted mt-2 text-sm">
+              Waiting for host to start a new mission…
             </p>
           )}
         </div>
       )}
 
-      {/* Spymaster clue form */}
       {playing && isSpymaster && !room.clue && roundsLeft > 0 && (
         <ClueForm onSubmit={onClue} busy={busy} />
       )}
 
-      {/* Guesser actions */}
       {playing && isGuesser && room.clue && (
         <button
+          type="button"
           onClick={onPass}
           disabled={busy}
-          className={`w-full rounded-lg border px-4 py-2 font-semibold transition disabled:opacity-50 ${
+          className={
             youPassed
-              ? "border-amber-500 bg-amber-500/20 text-amber-100"
-              : "border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
-          }`}
+              ? "tc-btn-secondary w-full font-semibold ring-2 ring-[var(--tc-warn-border)]"
+              : "tc-btn-secondary w-full"
+          }
         >
           {youPassed ? "Voted to end round" : "Vote to end round"} (
           {passVotes.length}/2)
         </button>
       )}
 
-      {/* Accuse the spymaster (guessers only) */}
       {playing && isGuesser && (
         <button
+          type="button"
           onClick={onAccuse}
           disabled={busy}
-          className={`w-full rounded-lg border px-4 py-2 font-semibold transition disabled:opacity-50 ${
-            youAccused
-              ? "border-red-500 bg-red-500/25 text-red-100"
-              : "border-red-500/40 bg-red-500/10 text-red-200 hover:bg-red-500/20"
-          }`}
+          className={
+            youAccused ? "tc-btn-danger-active w-full" : "tc-btn-danger w-full"
+          }
         >
           {youAccused
             ? "Accusing the spymaster"
-            : "Accuse: spymaster is the mole"}{" "}
+            : "Accuse: spymaster is the turncoat"}{" "}
           ({accusations.length}/3)
         </button>
       )}
 
       {playing && accusations.length > 0 && (
-        <p className="text-center text-xs text-amber-400/80">
+        <p className="tc-muted text-center text-xs">
           Accusing: {accusations.map(nameOf).join(", ")}
           {accusations.length < 3
-            ? ` — all 3 guessers must agree to end the game.`
+            ? " — all 3 guessers must agree to end the game."
             : ""}
         </p>
       )}
 
-      {/* Your role reminder */}
       {you && (
-        <p className="text-center text-xs text-slate-500">
+        <p className="tc-muted text-center text-xs">
           You are{" "}
           <span
             className={
-              isSpymaster ? "text-emerald-400" : "text-sky-400"
+              isSpymaster
+                ? "font-medium text-[var(--tc-green)]"
+                : "font-medium text-[var(--tc-blue)]"
             }
           >
             the {you.role}
           </span>
           {you.isMole && (
-            <span className="ml-1 font-bold text-red-400">(MOLE)</span>
+            <span className="ml-1 font-bold text-[var(--tc-danger)]">
+              (turncoat)
+            </span>
           )}
         </p>
       )}
@@ -198,19 +195,21 @@ export function GamePanelCoop({
 function StatBox({
   label,
   value,
-  tone,
+  variant,
 }: {
   label: string;
   value: number;
-  tone: "emerald" | "violet";
+  variant: "green" | "blue";
 }) {
-  const color = tone === "emerald" ? "text-emerald-400" : "text-violet-400";
+  const color =
+    variant === "green"
+      ? "text-[var(--tc-green)]"
+      : "text-[var(--tc-blue)]";
+
   return (
-    <div className="flex-1 rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-center">
-      <div className={`text-3xl font-black ${color}`}>{value}</div>
-      <div className="text-xs uppercase tracking-wide text-slate-500">
-        {label}
-      </div>
+    <div className="tc-panel flex-1 text-center">
+      <div className={`text-3xl font-bold tabular-nums ${color}`}>{value}</div>
+      <div className="tc-section-title mt-0.5">{label}</div>
     </div>
   );
 }
@@ -219,11 +218,9 @@ function GameLog({ room }: { room: ClientRoom }) {
   const entries = [...room.log].reverse().slice(0, 12);
   if (entries.length === 0) return null;
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3">
-      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Mission log
-      </h4>
-      <ul className="space-y-1 text-xs text-slate-400">
+    <div className="tc-panel-inset">
+      <h4 className="tc-section-title mb-2">Mission log</h4>
+      <ul className="tc-log">
         {entries.map((e) => (
           <li key={e.id}>{e.message}</li>
         ))}

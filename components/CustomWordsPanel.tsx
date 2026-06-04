@@ -21,14 +21,12 @@ export function CustomWordsPanel({ room, isHost, onSave, busy }: Props) {
   const [dirty, setDirty] = useState(false);
   const wasBusy = useRef(false);
 
-  // Sync from server only when the user is not mid-edit (polls every ~1.5s).
   useEffect(() => {
     if (dirty) return;
     setText(serverText);
     setPercent(serverPercent);
   }, [serverText, serverPercent, dirty]);
 
-  // After a successful save, apply server state and clear dirty.
   useEffect(() => {
     if (wasBusy.current && !busy) {
       setText(serverText);
@@ -48,12 +46,12 @@ export function CustomWordsPanel({ room, isHost, onSave, busy }: Props) {
     const slots = customSlotsForBoard(BOARD_SIZE, count, percent);
     const defaultSlots = BOARD_SIZE - slots;
     if (count === 0) {
-      return `All ${BOARD_SIZE} words will come from the classic list.`;
+      return `All ${BOARD_SIZE} words will come from the default list.`;
     }
     if (percent === 0) {
-      return `${count} custom word${count === 1 ? "" : "s"} saved — slider at 0%, so the classic list is used until you raise it.`;
+      return `${count} custom word${count === 1 ? "" : "s"} saved — mix is 0%, so only the default list is used.`;
     }
-    return `About ${slots} of ${BOARD_SIZE} board words from your list (${count} available), ${defaultSlots} from the classic list.`;
+    return `About ${slots} of ${BOARD_SIZE} from your list (${count} available), ${defaultSlots} from the default list.`;
   }, [text, percent]);
 
   if (!isHost) {
@@ -66,11 +64,11 @@ export function CustomWordsPanel({ room, isHost, onSave, busy }: Props) {
       room.customWordPercent,
     );
     return (
-      <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/50 p-4 text-sm text-slate-400">
-        <p className="font-semibold text-slate-300">Custom words</p>
-        <p className="mt-1">
-          Host set {room.customWordPercent}% custom ({slots} of {BOARD_SIZE}{" "}
-          slots) — {room.customWords.length} word
+      <div className="tc-panel-inset mb-6 text-sm">
+        <p className="font-medium">Custom words</p>
+        <p className="tc-muted mt-1">
+          Host set {room.customWordPercent}% custom ({slots} of {BOARD_SIZE} slots)
+          — {room.customWords.length} word
           {room.customWords.length === 1 ? "" : "s"} in list.
         </p>
       </div>
@@ -78,13 +76,10 @@ export function CustomWordsPanel({ room, isHost, onSave, busy }: Props) {
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <h3 className="text-sm font-bold uppercase tracking-wide text-slate-300">
-        Custom words
-      </h3>
-      <p className="mt-1 text-xs text-slate-500">
-        One word per line (commas work too). Saved words are mixed into each new
-        game based on the slider.
+    <div className="tc-panel mb-6">
+      <h3 className="tc-section-title">Custom words</h3>
+      <p className="tc-muted mt-1 text-xs leading-relaxed">
+        One word per line (commas work too). Applied when a new game starts.
       </p>
 
       <textarea
@@ -95,17 +90,15 @@ export function CustomWordsPanel({ room, isHost, onSave, busy }: Props) {
         }}
         placeholder={"PIZZA\nEINSTEIN\nSTAR WARS"}
         rows={6}
-        className="mt-3 w-full resize-y rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-sm text-slate-100 outline-none ring-violet-500/40 focus:ring-2"
+        className="tc-input mt-3 resize-y font-mono text-sm"
       />
 
       <div className="mt-4">
         <div className="flex items-center justify-between text-sm">
-          <label htmlFor="custom-percent" className="text-slate-300">
-            Custom word mix
+          <label htmlFor="custom-percent" className="font-medium">
+            Custom mix
           </label>
-          <span className="font-mono font-semibold text-violet-300">
-            {percent}%
-          </span>
+          <span className="font-mono text-sm font-semibold">{percent}%</span>
         </div>
         <input
           id="custom-percent"
@@ -118,26 +111,28 @@ export function CustomWordsPanel({ room, isHost, onSave, busy }: Props) {
             setDirty(true);
             setPercent(Number(e.target.value));
           }}
-          className="mt-2 w-full accent-violet-500"
+          className="tc-range"
         />
-        <div className="mt-1 flex justify-between text-xs text-slate-600">
-          <span>0% classic only</span>
-          <span>100% custom only</span>
+        <div className="tc-muted mt-1 flex justify-between text-xs">
+          <span>Default list only</span>
+          <span>Custom list only</span>
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-slate-500">{preview}</p>
+      <p className="tc-muted mt-3 text-xs leading-relaxed">{preview}</p>
       {dirty && (
-        <p className="mt-2 text-xs text-amber-400/90">Unsaved changes</p>
+        <p className="mt-2 text-xs font-medium text-[var(--tc-warn-border)]">
+          Unsaved changes
+        </p>
       )}
 
       <button
         type="button"
         onClick={() => onSave(text, percent)}
         disabled={busy}
-        className="mt-4 w-full rounded-lg border border-violet-500/40 bg-violet-500/15 px-4 py-2 text-sm font-semibold text-violet-100 transition hover:bg-violet-500/25 disabled:opacity-50"
+        className="tc-btn-secondary mt-4 w-full"
       >
-        {busy ? "Saving..." : "Save word settings"}
+        {busy ? "Saving…" : "Save word settings"}
       </button>
     </div>
   );

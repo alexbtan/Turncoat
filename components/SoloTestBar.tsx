@@ -17,7 +17,7 @@ function playerLabel(p: Player, hostPlayerId: string): string {
   if (p.role) {
     seat = p.team ? ` — ${p.team} ${p.role}` : ` — ${p.role}`;
   }
-  return `${p.name}${bot ? " 🤖" : ""}${you}${seat}`;
+  return `${p.name}${bot ? " [bot]" : ""}${you}${seat}`;
 }
 
 export function SoloTestBar({
@@ -30,18 +30,21 @@ export function SoloTestBar({
   if (!hasBots) return null;
 
   return (
-    <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-200/90">
-        Solo test mode
+    <div className="tc-panel-inset mb-4 border-dashed">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--tc-muted)]">
+        Solo test
       </p>
-      <p className="mb-2 text-xs text-amber-100/70">
-        Switch which player you control to play every role from one browser.
+      <p className="tc-muted mt-1 text-xs leading-relaxed">
+        Switch which player you control to run every seat from one browser.
       </p>
-      <label className="block text-xs text-slate-400">Playing as</label>
+      <label htmlFor="solo-player" className="tc-label mt-3">
+        Playing as
+      </label>
       <select
+        id="solo-player"
         value={activePlayerId}
         onChange={(e) => onActivePlayerChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-amber-500/40 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-amber-500/50"
+        className="tc-input"
       >
         {room.players.map((p) => (
           <option key={p.id} value={p.id}>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { CustomWordsPanel } from "@/components/CustomWordsPanel";
 import { isBotPlayer } from "@/lib/game";
 import { MAX_COOP_ROUNDS, MIN_COOP_ROUNDS } from "@/lib/gameCoop";
@@ -25,13 +26,13 @@ function Seat({
   hostPlayerId: string;
 }) {
   return (
-    <li className="text-sm text-slate-200">
+    <li className="text-sm">
       {player.name}
       {isBotPlayer(player) && (
-        <span className="ml-1 text-xs text-amber-500/80">(bot)</span>
+        <span className="tc-muted ml-1 text-xs">[bot]</span>
       )}
       {player.id === hostPlayerId && (
-        <span className="ml-1 text-xs text-slate-500">(you)</span>
+        <span className="tc-muted ml-1 text-xs">(you)</span>
       )}
     </li>
   );
@@ -53,7 +54,18 @@ export function LobbyCoop({
   const guessers = room.players.filter((p) => p.role === "guesser");
   const unassigned = room.players.filter((p) => !p.role);
   const canAddBots = room.players.length < 4;
-  const maxRounds = room.maxRounds ?? 8;
+  const serverRounds = room.maxRounds ?? 8;
+  const [localRounds, setLocalRounds] = useState(serverRounds);
+  const dragging = useRef(false);
+
+  useEffect(() => {
+    if (!dragging.current) setLocalRounds(serverRounds);
+  }, [serverRounds]);
+
+  function commitRounds() {
+    dragging.current = false;
+    if (localRounds !== serverRounds) onSetMaxRounds(localRounds);
+  }
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -64,15 +76,10 @@ export function LobbyCoop({
         busy={busy}
       />
 
-      {/* Round settings */}
-      <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+      <div className="tc-panel mb-6">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-bold uppercase tracking-wide text-slate-300">
-            Rounds to win
-          </span>
-          <span className="font-mono font-semibold text-violet-300">
-            {maxRounds}
-          </span>
+          <span className="font-medium">Rounds to win</span>
+          <span className="font-mono font-semibold">{localRounds}</span>
         </div>
         {isHost ? (
           <input
@@ -80,57 +87,63 @@ export function LobbyCoop({
             min={MIN_COOP_ROUNDS}
             max={MAX_COOP_ROUNDS}
             step={1}
-            value={maxRounds}
-            disabled={busy}
-            onChange={(e) => onSetMaxRounds(Number(e.target.value))}
-            className="mt-2 w-full accent-violet-500"
+            value={localRounds}
+            onChange={(e) => {
+              dragging.current = true;
+              setLocalRounds(Number(e.target.value));
+            }}
+            onPointerUp={commitRounds}
+            onBlur={commitRounds}
+            className="tc-range"
+            aria-label="Maximum rounds"
           />
         ) : (
-          <p className="mt-1 text-xs text-slate-500">
-            The team must find all 9 agents within {maxRounds} rounds.
+          <p className="tc-muted mt-2 text-xs">
+            Find all 9 agents within {serverRounds} rounds.
           </p>
         )}
       </div>
 
-      {/* Seats */}
-      <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4">
-          <h3 className="mb-3 text-lg font-bold uppercase tracking-wide text-emerald-400">
+      <div className="mb-6 grid gap-3 sm:grid-cols-2">
+        <div className="tc-panel border-l-4 border-l-[var(--tc-green)] bg-[var(--tc-green-bg)]">
+          <h3 className="mb-3 text-base font-bold text-[var(--tc-green)]">
             Spymaster
           </h3>
           {spymasters.length === 0 ? (
-            <p className="text-sm italic text-slate-600">No spymaster yet</p>
+            <p className="tc-muted text-sm">—</p>
           ) : (
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {spymasters.map((p) => (
                 <Seat key={p.id} player={p} hostPlayerId={hostPlayerId} />
               ))}
             </ul>
           )}
           <button
+            type="button"
             onClick={() => onPickRole("spymaster")}
-            className="mt-4 w-full rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-500/30"
+            className="tc-btn-secondary mt-4 w-full text-xs"
           >
             Be spymaster
           </button>
         </div>
 
-        <div className="rounded-xl border border-sky-500/40 bg-sky-500/5 p-4">
-          <h3 className="mb-3 text-lg font-bold uppercase tracking-wide text-sky-400">
+        <div className="tc-panel border-l-4 border-l-[var(--tc-blue)] bg-[var(--tc-blue-bg)]">
+          <h3 className="mb-3 text-base font-bold text-[var(--tc-blue)]">
             Guessers ({guessers.length}/3)
           </h3>
           {guessers.length === 0 ? (
-            <p className="text-sm italic text-slate-600">No guessers yet</p>
+            <p className="tc-muted text-sm">—</p>
           ) : (
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {guessers.map((p) => (
                 <Seat key={p.id} player={p} hostPlayerId={hostPlayerId} />
               ))}
             </ul>
           )}
           <button
+            type="button"
             onClick={() => onPickRole("guesser")}
-            className="mt-4 w-full rounded-lg border border-sky-500/40 bg-sky-500/20 px-3 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30"
+            className="tc-btn-secondary mt-4 w-full text-xs"
           >
             Be guesser
           </button>
@@ -138,8 +151,9 @@ export function LobbyCoop({
       </div>
 
       {unassigned.length > 0 && (
-        <div className="mb-6 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm text-slate-400">
-          No role yet: {unassigned.map((p) => p.name).join(", ")}
+        <div className="tc-panel-inset mb-6 text-sm">
+          <span className="tc-muted">No role yet: </span>
+          {unassigned.map((p) => p.name).join(", ")}
         </div>
       )}
 
@@ -148,17 +162,19 @@ export function LobbyCoop({
           <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
             {canAddBots && (
               <button
+                type="button"
                 onClick={onAddTestPlayers}
                 disabled={busy}
-                className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/25 disabled:opacity-50"
+                className="tc-btn-ghost"
               >
                 Add test players
               </button>
             )}
             <button
+              type="button"
               onClick={onRandomize}
               disabled={busy || room.players.length !== 4}
-              className="rounded-lg border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:opacity-50"
+              className="tc-btn-secondary"
             >
               Randomize roles
             </button>
@@ -167,20 +183,19 @@ export function LobbyCoop({
 
         {isHost ? (
           <button
+            type="button"
             onClick={onStart}
             disabled={busy}
-            className="rounded-lg bg-gradient-to-r from-emerald-500 to-sky-500 px-8 py-3 font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+            className="tc-btn-primary px-10"
           >
-            {busy ? "Starting..." : "Start mission"}
+            {busy ? "Starting…" : "Start mission"}
           </button>
         ) : (
-          <p className="text-sm text-slate-400">
-            Waiting for the host to start the mission...
-          </p>
+          <p className="tc-muted text-sm">Waiting for the host to start…</p>
         )}
-        <p className="text-center text-xs text-slate-600">
-          Co-op needs exactly 1 spymaster and 3 guessers. One of the four will
-          secretly be the mole.
+        <p className="tc-muted max-w-sm text-center text-xs leading-relaxed">
+          Turncoat mode needs 1 spymaster and 3 guessers. One player is secretly
+          the turncoat.
         </p>
       </div>
     </div>
