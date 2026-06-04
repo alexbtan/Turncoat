@@ -28,6 +28,8 @@ export interface Clue {
   word: string;
   number: number;
   guessesRemaining: number;
+  /** Turncoat mode: the final clue grants unlimited guesses. */
+  unlimited?: boolean;
 }
 
 export interface LogEntry {
@@ -70,6 +72,8 @@ export interface Room {
   accusations: string[];
   /** Who won once a Turncoat mode game is finished. */
   coopOutcome: CoopOutcome | null;
+  /** Final-clue shield: true once the team's one free white card is spent. */
+  shieldUsed: boolean;
 
   createdAt: number;
   updatedAt: number;
@@ -117,6 +121,8 @@ export interface ClientRoom {
   passVotes?: string[];
   accusations?: string[];
   coopOutcome?: CoopOutcome | null;
+  /** Final-clue shield: true once the team's one free white card is spent. */
+  shieldUsed?: boolean;
   /** Revealed to everyone only once the game is finished. */
   moleReveal?: { playerId: string; role: Role } | null;
 

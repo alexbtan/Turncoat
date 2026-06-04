@@ -51,16 +51,22 @@ function clearVotes(room: Room): void {
   room.passVotes = [];
 }
 
-function generateCoopBoard(room: Room): Card[] {
+function generateCoopBoard(room: Room, hasAssassin: boolean): Card[] {
   const words = pickBoardWords({
     customWords: room.customWords,
     customWordPercent: room.customWordPercent,
   });
 
+  // When the spymaster is the turncoat there is no assassin: that card slot
+  // becomes an extra white/neutral card so a traitor spymaster can't funnel
+  // the team into an instant loss.
+  const assassins = hasAssassin ? COOP_ASSASSINS : 0;
+  const neutrals = COOP_BOARD_SIZE - COOP_AGENTS - assassins;
+
   const types: Card["type"][] = [
     ...Array(COOP_AGENTS).fill("agent" as const),
-    ...Array(COOP_NEUTRALS).fill("neutral" as const),
-    ...Array(COOP_ASSASSINS).fill("assassin" as const),
+    ...Array(neutrals).fill("neutral" as const),
+    ...Array(assassins).fill("assassin" as const),
   ];
   const shuffledTypes = shuffle(types);
 
@@ -142,11 +148,13 @@ export function startCoopGame(room: Room): Result {
   const valid = validateCoopLobby(room);
   if (!valid.ok) return valid;
 
-  room.board = generateCoopBoard(room);
-
-  // Pick the mole at random among all four players.
+  // Pick the mole first so the board can react to whether the spymaster is
+  // the traitor (no assassin) or a guesser is (assassin present).
   const mole = shuffle([...room.players])[0];
   room.molePlayerId = mole.id;
+  const hasAssassin = moleRoleOf(room) !== "spymaster";
+  room.board = generateCoopBoard(room, hasAssassin);
+  room.shieldUsed = false;
 
   room.maxRounds = room.maxRounds || DEFAULT_COOP_ROUNDS;
   room.roundsRemaining = room.maxRounds;
@@ -193,14 +201,23 @@ export function submitCoopClue(
     return { ok: false, error: "Clue number must be between 0 and 9." };
   }
 
+  // The final round's clue grants unlimited guesses (the team must clear every
+  // remaining agent now), with a one-white-card shield instead of a hard stop.
+  const isLastClue = room.roundsRemaining <= 1;
+
   const clue: Clue = {
     word: trimmed.toUpperCase(),
     number: n,
     guessesRemaining: n === 0 ? agentsRemaining(room) : n + 1,
+    unlimited: isLastClue,
   };
   room.clue = clue;
+  room.shieldUsed = false;
   clearVotes(room);
   addLog(room, `Spymaster: "${clue.word}" ${n}`);
+  if (isLastClue) {
+    addLog(room, "Final clue: unlimited guesses, one white card shielded.");
+  }
   return { ok: true };
 }
 
@@ -239,7 +256,8 @@ function revealCoopCard(room: Room, index: number): void {
       addLog(room, "All agents found! The team wins.");
       return;
     }
-    if (room.clue) {
+    // Unlimited-guess final clue never runs out of guesses.
+    if (room.clue && !room.clue.unlimited) {
       room.clue.guessesRemaining -= 1;
       if (room.clue.guessesRemaining <= 0) {
         endCoopRound(room, "out of guesses");
@@ -248,8 +266,24 @@ function revealCoopCard(room: Room, index: number): void {
     return;
   }
 
-  // Neutral bystander: the round ends immediately.
+  // Neutral / white card.
   addLog(room, `Revealed "${card.word}" — a bystander.`);
+
+  // On the final clue, the first white card is shielded (keep guessing); a
+  // second white card ends the game.
+  if (room.clue?.unlimited) {
+    if (!room.shieldUsed) {
+      room.shieldUsed = true;
+      addLog(room, "Shield absorbed the white card — keep guessing!");
+      return;
+    }
+    room.phase = "finished";
+    room.coopOutcome = "mole";
+    room.clue = null;
+    addLog(room, "A second white card on the final clue — the turncoat wins.");
+    return;
+  }
+
   endCoopRound(room, "bystander revealed");
 }
 
@@ -397,6 +431,7 @@ export function toClientRoomCoop(
     passVotes: room.passVotes,
     accusations: room.accusations,
     coopOutcome: room.coopOutcome,
+    shieldUsed: room.shieldUsed,
     moleReveal,
     you: self ? { ...self, isMole } : null,
   };

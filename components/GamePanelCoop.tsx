@@ -54,13 +54,27 @@ export function GamePanelCoop({
               <p className="mt-1 text-lg font-bold">
                 &ldquo;{room.clue.word}&rdquo; &middot; {room.clue.number}
                 <span className="tc-muted ml-2 text-sm font-normal">
-                  ({room.clue.guessesRemaining} guess
-                  {room.clue.guessesRemaining === 1 ? "" : "es"} left)
+                  (
+                  {room.clue.unlimited
+                    ? "unlimited guesses"
+                    : `${room.clue.guessesRemaining} guess${
+                        room.clue.guessesRemaining === 1 ? "" : "es"
+                      } left`}
+                  )
                 </span>
               </p>
-              <p className="tc-muted mt-2 text-xs">
-                A card is revealed when 2 of 3 guessers vote for it.
-              </p>
+              {room.clue.unlimited ? (
+                <p className="tc-muted mt-2 text-xs">
+                  Final clue — keep guessing.{" "}
+                  {room.shieldUsed
+                    ? "Shield spent: the next white card ends the game."
+                    : "One white card is shielded; a second white card ends the game."}
+                </p>
+              ) : (
+                <p className="tc-muted mt-2 text-xs">
+                  A card is revealed when 2 of 3 guessers vote for it.
+                </p>
+              )}
             </>
           ) : (
             <p className="tc-muted text-sm italic">
@@ -76,11 +90,10 @@ export function GamePanelCoop({
             You are the turncoat
           </p>
           <p className="tc-muted mt-1 text-xs leading-relaxed">
-            You can see the full key. Make the team lose — get the assassin
-            revealed or run out the round clock.
+            You can see the full key.{" "}
             {isSpymaster
-              ? " As spymaster, give clues just bad enough to fail while looking helpful."
-              : " As a guesser, swing votes onto bystanders or the assassin, or bait the others into wrongly accusing the spymaster."}
+              ? "There is no assassin this game. Make the team lose by giving clues just bad enough to waste rounds and run out the clock — while looking helpful."
+              : "Make the team lose — swing votes onto bystanders or the assassin, or bait the others into wrongly accusing the spymaster."}
           </p>
         </div>
       )}

@@ -187,6 +187,7 @@ export function createRoom(hostId: string): Room {
     passVotes: [],
     accusations: [],
     coopOutcome: null,
+    shieldUsed: false,
     createdAt: now,
     updatedAt: now,
   };
@@ -247,6 +248,7 @@ export function normalizeRoom(room: Room): void {
   if (!Array.isArray(room.passVotes)) room.passVotes = [];
   if (!Array.isArray(room.accusations)) room.accusations = [];
   if (typeof room.coopOutcome === "undefined") room.coopOutcome = null;
+  if (typeof room.shieldUsed !== "boolean") room.shieldUsed = false;
 }
 
 /** Begin a new game: assign a fresh board and reset turn/clue state. */
