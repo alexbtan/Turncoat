@@ -23,12 +23,15 @@
   --tc-green-border: #9ab5a8;
   --tc-neutral-bg: #ebe6d6;
   --tc-neutral-border: #b8ae9a;
-  --tc-assassin-bg: #2a2926;
+  --tc-neutral-revealed-bg: #d4cec0;
+  --tc-neutral-revealed-border: #8a8070;
+  --tc-neutral-revealed-label: #5c5648;
+  --tc-assassin-bg: #1a1917;
+  --tc-assassin-text: #ffffff;
   --tc-warn-bg: #f0ebe0;
   --tc-warn-border: #a89878;
   --tc-danger: #8b2e2e;
   --tc-danger-bg: #f8eded;
-  --tc-assassin-key-bg: #e8e6e2;
 }
 
 /* Turncoat mode — darker “night mission” palette (html + scoped wrappers) */
@@ -53,8 +56,11 @@ html.tc-theme-turncoat {
   --tc-green-border: #3d6b52;
   --tc-neutral-bg: #333028;
   --tc-neutral-border: #5c5648;
-  --tc-assassin-bg: #0f0e0d;
-  --tc-assassin-key-bg: #3d3a36;
+  --tc-neutral-revealed-bg: #4a4538;
+  --tc-neutral-revealed-border: #8a8070;
+  --tc-neutral-revealed-label: #cfc9bc;
+  --tc-assassin-bg: #000000;
+  --tc-assassin-text: #ffffff;
   --tc-warn-bg: #3a3528;
   --tc-warn-border: #7a6f55;
   --tc-danger: #e07a7a;

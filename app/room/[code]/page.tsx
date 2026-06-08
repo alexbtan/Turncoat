@@ -120,7 +120,7 @@ export default function RoomPage() {
   const onSetMode = (mode: GameMode) =>
     playerId && run(() => api.setMode(code, playerId, mode));
   const onSetMaxRounds = (rounds: number) =>
-    playerId && run(() => api.setMode(code, playerId, "coop", rounds));
+    playerId && run(() => api.setCoopMaxRounds(code, playerId, rounds));
   const onPickRole = (role: Role) =>
     viewAs && run(() => api.setCoopRole(code, viewAs, role));
   const onCoopRandomize = () =>

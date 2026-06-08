@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CustomWordsPanel } from "@/components/CustomWordsPanel";
-import { isBotPlayer } from "@/lib/game";
+import { DEFAULT_COOP_ROUNDS, isBotPlayer } from "@/lib/game";
 import { MAX_COOP_ROUNDS, MIN_COOP_ROUNDS } from "@/lib/gameCoop";
 import type { ClientRoom, Player, Role } from "@/lib/types";
 
@@ -54,17 +54,35 @@ export function LobbyCoop({
   const guessers = room.players.filter((p) => p.role === "guesser");
   const unassigned = room.players.filter((p) => !p.role);
   const canAddBots = room.players.length < 4;
-  const serverRounds = room.maxRounds ?? 8;
+  const serverRounds = room.maxRounds ?? DEFAULT_COOP_ROUNDS;
   const [localRounds, setLocalRounds] = useState(serverRounds);
+  const sliderRef = useRef<HTMLInputElement>(null);
   const dragging = useRef(false);
+  const pending = useRef(false);
+  const wasBusy = useRef(false);
 
   useEffect(() => {
-    if (!dragging.current) setLocalRounds(serverRounds);
+    if (!dragging.current && !pending.current) setLocalRounds(serverRounds);
   }, [serverRounds]);
+
+  useEffect(() => {
+    if (pending.current && localRounds === serverRounds) {
+      pending.current = false;
+    }
+  }, [localRounds, serverRounds]);
+
+  useEffect(() => {
+    if (wasBusy.current && !busy) pending.current = false;
+    wasBusy.current = busy;
+  }, [busy]);
 
   function commitRounds() {
     dragging.current = false;
-    if (localRounds !== serverRounds) onSetMaxRounds(localRounds);
+    const next = Number(sliderRef.current?.value ?? localRounds);
+    setLocalRounds(next);
+    if (next === serverRounds) return;
+    pending.current = true;
+    onSetMaxRounds(next);
   }
 
   return (
@@ -82,21 +100,29 @@ export function LobbyCoop({
           <span className="font-mono font-semibold">{localRounds}</span>
         </div>
         {isHost ? (
-          <input
-            type="range"
-            min={MIN_COOP_ROUNDS}
-            max={MAX_COOP_ROUNDS}
-            step={1}
-            value={localRounds}
-            onChange={(e) => {
-              dragging.current = true;
-              setLocalRounds(Number(e.target.value));
-            }}
-            onPointerUp={commitRounds}
-            onBlur={commitRounds}
-            className="tc-range"
-            aria-label="Maximum rounds"
-          />
+          <>
+            <input
+              ref={sliderRef}
+              type="range"
+              min={MIN_COOP_ROUNDS}
+              max={MAX_COOP_ROUNDS}
+              step={1}
+              value={localRounds}
+              onChange={(e) => {
+                dragging.current = true;
+                setLocalRounds(Number(e.target.value));
+              }}
+              onPointerUp={commitRounds}
+              onKeyUp={commitRounds}
+              onBlur={commitRounds}
+              className="tc-range"
+              aria-label="Maximum rounds"
+            />
+            <p className="tc-muted mt-2 text-xs">
+              Recommended: {DEFAULT_COOP_ROUNDS} rounds. Find all 9 agents before
+              the round clock runs out.
+            </p>
+          </>
         ) : (
           <p className="tc-muted mt-2 text-xs">
             Find all 9 agents within {serverRounds} rounds.

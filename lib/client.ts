@@ -144,6 +144,17 @@ export function setMode(
   });
 }
 
+export function setCoopMaxRounds(
+  code: string,
+  playerId: string,
+  maxRounds: number,
+) {
+  return post<{ room: ClientRoom }>(`/api/rooms/${code}/coop/settings`, {
+    playerId,
+    maxRounds,
+  });
+}
+
 export function setCoopRole(code: string, playerId: string, role: Role) {
   return post<{ room: ClientRoom }>(`/api/rooms/${code}/coop/role`, {
     playerId,

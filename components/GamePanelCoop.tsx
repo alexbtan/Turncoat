@@ -1,7 +1,9 @@
 "use client";
 
 import type { ClientRoom } from "@/lib/types";
+import { isClueLogMessage } from "@/lib/clueHistory";
 import { ClueForm } from "./ClueForm";
+import { PreviousClues } from "./PreviousClues";
 
 interface Props {
   room: ClientRoom;
@@ -47,31 +49,40 @@ export function GamePanelCoop({
       </div>
 
       {playing && (
-        <div className="tc-panel text-center">
+        <div
+          className={`tc-panel text-center ${
+            room.clue
+              ? "border-l-4 border-l-[var(--tc-green)] bg-[var(--tc-green-bg)]"
+              : ""
+          }`}
+        >
           {room.clue ? (
             <>
-              <p className="tc-section-title">Clue in play</p>
-              <p className="mt-1 text-lg font-bold">
-                &ldquo;{room.clue.word}&rdquo; &middot; {room.clue.number}
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--tc-green)]">
+                Current clue
+              </p>
+              <p className="mt-2 text-2xl font-bold leading-none">
+                &ldquo;{room.clue.word}&rdquo;
+              </p>
+              <p className="mt-2 text-lg font-semibold tabular-nums">
+                {room.clue.number}
                 <span className="tc-muted ml-2 text-sm font-normal">
-                  (
                   {room.clue.unlimited
-                    ? "unlimited guesses"
-                    : `${room.clue.guessesRemaining} guess${
+                    ? "(unlimited guesses)"
+                    : `(${room.clue.guessesRemaining} guess${
                         room.clue.guessesRemaining === 1 ? "" : "es"
-                      } left`}
-                  )
+                      } left)`}
                 </span>
               </p>
               {room.clue.unlimited ? (
-                <p className="tc-muted mt-2 text-xs">
+                <p className="tc-muted mt-3 text-xs leading-relaxed">
                   Final clue — keep guessing.{" "}
                   {room.shieldUsed
                     ? "Shield spent: the next white card ends the game."
                     : "One white card is shielded; a second white card ends the game."}
                 </p>
               ) : (
-                <p className="tc-muted mt-2 text-xs">
+                <p className="tc-muted mt-3 text-xs leading-relaxed">
                   A card is revealed when 2 of 3 guessers vote for it.
                 </p>
               )}
@@ -83,6 +94,8 @@ export function GamePanelCoop({
           )}
         </div>
       )}
+
+      <PreviousClues room={room} />
 
       {playing && you?.isMole && (
         <div className="tc-panel border-l-4 border-l-[var(--tc-red)] bg-[var(--tc-danger-bg)]">
@@ -228,7 +241,10 @@ function StatBox({
 }
 
 function GameLog({ room }: { room: ClientRoom }) {
-  const entries = [...room.log].reverse().slice(0, 12);
+  const entries = [...room.log]
+    .reverse()
+    .filter((e) => !isClueLogMessage(e.message, room.gameMode))
+    .slice(0, 12);
   if (entries.length === 0) return null;
   return (
     <div className="tc-panel-inset">

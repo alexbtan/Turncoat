@@ -1,7 +1,9 @@
 "use client";
 
 import type { ClientRoom, Team } from "@/lib/types";
+import { isClueLogMessage } from "@/lib/clueHistory";
 import { ClueForm } from "./ClueForm";
+import { PreviousClues } from "./PreviousClues";
 
 interface Props {
   room: ClientRoom;
@@ -49,20 +51,30 @@ export function GamePanel({
         >
           <p className="tc-section-title">{cap(room.turn)} team&apos;s turn</p>
           {room.clue ? (
-            <p className="mt-1 text-lg font-bold">
-              &ldquo;{room.clue.word}&rdquo; &middot; {room.clue.number}
-              <span className="tc-muted ml-2 text-sm font-normal">
-                ({room.clue.guessesRemaining} guess
-                {room.clue.guessesRemaining === 1 ? "" : "es"} left)
-              </span>
-            </p>
+            <>
+              <p className="mt-2 text-xs font-bold uppercase tracking-[0.2em]">
+                Current clue
+              </p>
+              <p className="mt-2 text-2xl font-bold leading-none">
+                &ldquo;{room.clue.word}&rdquo;
+              </p>
+              <p className="mt-2 text-lg font-semibold tabular-nums">
+                {room.clue.number}
+                <span className="tc-muted ml-2 text-sm font-normal">
+                  ({room.clue.guessesRemaining} guess
+                  {room.clue.guessesRemaining === 1 ? "" : "es"} left)
+                </span>
+              </p>
+            </>
           ) : (
-            <p className="tc-muted mt-1 text-sm italic">
+            <p className="tc-muted mt-2 text-sm italic">
               Waiting for spymaster&apos;s clue…
             </p>
           )}
         </div>
       )}
+
+      <PreviousClues room={room} />
 
       {room.phase === "finished" && room.winner && (
         <div
@@ -151,7 +163,10 @@ function ScoreBox({
 }
 
 function GameLog({ room }: { room: ClientRoom }) {
-  const entries = [...room.log].reverse().slice(0, 12);
+  const entries = [...room.log]
+    .reverse()
+    .filter((e) => !isClueLogMessage(e.message, room.gameMode))
+    .slice(0, 12);
   if (entries.length === 0) return null;
   return (
     <div className="tc-panel-inset">

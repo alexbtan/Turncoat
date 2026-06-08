@@ -12,7 +12,7 @@ import type {
 } from "./types";
 
 export const BOARD_SIZE = 25;
-export const DEFAULT_COOP_ROUNDS = 8;
+export const DEFAULT_COOP_ROUNDS = 5;
 
 function randomId(len = 8): string {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
