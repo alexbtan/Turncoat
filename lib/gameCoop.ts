@@ -165,6 +165,7 @@ export function startCoopGame(room: Room): Result {
   room.log = [];
   clearVotes(room);
   room.accusations = [];
+  room.guesserAccusations = {};
 
   addLog(
     room,
@@ -386,6 +387,77 @@ export function coopAccuse(room: Room, player: Player): Result {
   return { ok: true };
 }
 
+/** A guesser toggles voting that another guesser is the mole. */
+export function coopAccuseGuesser(
+  room: Room,
+  player: Player,
+  targetId: string,
+): Result {
+  if (room.phase !== "playing") {
+    return { ok: false, error: "Mission is not in progress." };
+  }
+  if (player.role !== "guesser") {
+    return { ok: false, error: "Only guessers can accuse another guesser." };
+  }
+  if (player.id === targetId) {
+    return { ok: false, error: "You cannot accuse yourself." };
+  }
+
+  const target = findPlayer(room, targetId);
+  if (!target || target.role !== "guesser") {
+    return { ok: false, error: "Invalid guesser to accuse." };
+  }
+
+  const already = (room.guesserAccusations[targetId] ?? []).includes(
+    player.id,
+  );
+
+  // One accusation target at a time — clear this voter from every target first.
+  for (const key of Object.keys(room.guesserAccusations)) {
+    const id = key;
+    room.guesserAccusations[id] = room.guesserAccusations[id].filter(
+      (voterId) => voterId !== player.id,
+    );
+    if (room.guesserAccusations[id].length === 0) {
+      delete room.guesserAccusations[id];
+    }
+  }
+
+  if (already) {
+    return { ok: true };
+  }
+
+  room.guesserAccusations[targetId] = [
+    ...(room.guesserAccusations[targetId] ?? []),
+    player.id,
+  ];
+
+  const otherGuessers = guessers(room).filter((g) => g.id !== targetId);
+  const voters = room.guesserAccusations[targetId] ?? [];
+  const unanimous = otherGuessers.every((g) => voters.includes(g.id));
+
+  if (unanimous) {
+    room.phase = "finished";
+    room.clue = null;
+    clearVotes(room);
+    if (room.molePlayerId === targetId) {
+      room.coopOutcome = "agents";
+      addLog(
+        room,
+        `The guessers accused ${target.name} — correct! The team wins.`,
+      );
+    } else {
+      room.coopOutcome = "mole";
+      addLog(
+        room,
+        `The guessers accused an innocent ${target.name} — the turncoat wins!`,
+      );
+    }
+  }
+
+  return { ok: true };
+}
+
 /** Co-op view projection: hides the mole and the key from honest guessers. */
 export function toClientRoomCoop(
   room: Room,
@@ -430,6 +502,7 @@ export function toClientRoomCoop(
     cardVotes: room.cardVotes,
     passVotes: room.passVotes,
     accusations: room.accusations,
+    guesserAccusations: room.guesserAccusations,
     coopOutcome: room.coopOutcome,
     shieldUsed: room.shieldUsed,
     moleReveal,

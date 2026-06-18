@@ -20,7 +20,7 @@ function tileClasses(card: ClientCard, keyView: boolean): string {
       case "assassin":
         return "border-black bg-black text-[var(--tc-assassin-text)] ring-2 ring-[var(--tc-red-border)]";
       default:
-        return "border-[var(--tc-neutral-revealed-border)] bg-[var(--tc-neutral-revealed-bg)] text-[var(--tc-text)] ring-2 ring-[var(--tc-neutral-revealed-border)] ring-offset-1 ring-offset-[var(--tc-bg)]";
+        return "border-[var(--tc-neutral-revealed-border)] bg-[var(--tc-neutral-revealed-bg)] text-[var(--tc-text)]";
     }
   }
 
@@ -46,11 +46,11 @@ function CardLabel({ card, keyView }: { card: ClientCard; keyView: boolean }) {
   if (card.type === "assassin" && (card.revealed || keyView)) {
     return (
       <>
-        <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-white/75 sm:text-[8px]">
+        <span className="absolute left-0 right-0 top-0.5 text-center text-[6px] font-bold uppercase tracking-[0.15em] text-white/75 sm:text-[7px]">
           Assassin
         </span>
         <span
-          className={`mt-0.5 max-w-full px-0.5 leading-tight ${
+          className={`max-w-full truncate px-0.5 leading-tight ${
             card.revealed ? "text-[8px] line-through opacity-70 sm:text-[9px]" : ""
           }`}
         >
@@ -63,17 +63,17 @@ function CardLabel({ card, keyView }: { card: ClientCard; keyView: boolean }) {
   if (card.revealed && card.type === "neutral") {
     return (
       <>
-        <span className="text-[7px] font-bold uppercase tracking-[0.15em] text-[var(--tc-neutral-revealed-label)] sm:text-[8px]">
+        <span className="absolute left-0 right-0 top-0.5 text-center text-[6px] font-bold uppercase tracking-[0.1em] text-[var(--tc-neutral-revealed-label)] sm:text-[7px]">
           Bystander
         </span>
-        <span className="mt-0.5 max-w-full px-0.5 leading-tight line-through decoration-2 decoration-[var(--tc-neutral-revealed-label)] opacity-80">
+        <span className="max-w-full truncate px-0.5 leading-tight line-through decoration-2 decoration-[var(--tc-neutral-revealed-label)] opacity-80">
           {card.word}
         </span>
       </>
     );
   }
 
-  return <span className="max-w-full px-0.5">{card.word}</span>;
+  return <span className="max-w-full truncate px-0.5">{card.word}</span>;
 }
 
 export function Board({ room, canGuess, onGuess }: Props) {
@@ -84,7 +84,7 @@ export function Board({ room, canGuess, onGuess }: Props) {
     room.players.find((p) => p.id === id)?.name ?? "?";
 
   return (
-    <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+    <div className="grid aspect-[5/3] w-full grid-cols-5 grid-rows-5 gap-1.5 sm:gap-2">
       {room.board.map((card, i) => {
         const clickable = canGuess && !card.revealed;
         const voters = isCoop ? room.cardVotes?.[i] ?? [] : [];
@@ -96,11 +96,11 @@ export function Board({ room, canGuess, onGuess }: Props) {
             type="button"
             disabled={!clickable}
             onClick={() => clickable && onGuess(i)}
-            className={`relative flex aspect-[5/3] flex-col items-center justify-center rounded border px-0.5 text-center text-[9px] font-semibold uppercase leading-tight tracking-wide transition sm:text-xs ${tileClasses(
+            className={`relative flex h-full min-h-0 w-full flex-col items-center justify-center overflow-hidden rounded border px-0.5 text-center text-[9px] font-semibold uppercase leading-tight tracking-wide transition sm:text-xs ${tileClasses(
               card,
               keyView,
             )} ${clickable ? "cursor-pointer active:translate-y-px" : "cursor-default"} ${
-              hasVotes ? "outline outline-2 outline-offset-1 outline-[var(--tc-border-strong)]" : ""
+              hasVotes ? "outline outline-2 outline-[var(--tc-border-strong)]" : ""
             }`}
           >
             <CardLabel card={card} keyView={keyView} />

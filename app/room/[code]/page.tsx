@@ -127,6 +127,8 @@ export default function RoomPage() {
     playerId && run(() => api.randomizeCoopRoles(code, playerId));
   const onPass = () => viewAs && run(() => api.coopPass(code, viewAs));
   const onAccuse = () => viewAs && run(() => api.coopAccuse(code, viewAs));
+  const onAccuseGuesser = (targetId: string) =>
+    viewAs && run(() => api.coopAccuseGuesser(code, viewAs, targetId));
 
   function copyCode() {
     navigator.clipboard?.writeText(code).then(() => {
@@ -254,6 +256,7 @@ export default function RoomPage() {
               onClue={onClue}
               onPass={onPass}
               onAccuse={onAccuse}
+              onAccuseGuesser={onAccuseGuesser}
               onReset={onReset}
             />
           ) : (

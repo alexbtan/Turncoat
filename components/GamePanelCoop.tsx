@@ -12,6 +12,7 @@ interface Props {
   onClue: (word: string, number: number) => void;
   onPass: () => void;
   onAccuse: () => void;
+  onAccuseGuesser: (targetId: string) => void;
   onReset: () => void;
 }
 
@@ -22,6 +23,7 @@ export function GamePanelCoop({
   onClue,
   onPass,
   onAccuse,
+  onAccuseGuesser,
   onReset,
 }: Props) {
   const you = room.you;
@@ -35,8 +37,15 @@ export function GamePanelCoop({
   const agentsLeft = room.agentsRemaining ?? 0;
   const passVotes = room.passVotes ?? [];
   const accusations = room.accusations ?? [];
+  const guesserAccusations = room.guesserAccusations ?? {};
   const youPassed = !!you && passVotes.includes(you.id);
   const youAccused = !!you && accusations.includes(you.id);
+
+  const otherGuessers =
+    you?.role === "guesser"
+      ? room.players.filter((p) => p.role === "guesser" && p.id !== you.id)
+      : [];
+  const votesNeededForGuesserAccusation = otherGuessers.length;
 
   const nameOf = (id: string) =>
     room.players.find((p) => p.id === id)?.name ?? "?";
@@ -182,6 +191,39 @@ export function GamePanelCoop({
             : "Accuse: spymaster is the turncoat"}{" "}
           ({accusations.length}/3)
         </button>
+      )}
+
+      {playing && isGuesser && otherGuessers.length > 0 && (
+        <div className="space-y-2">
+          <p className="tc-section-title text-center">
+            Accuse a guesser as the turncoat
+          </p>
+          {otherGuessers.map((g) => {
+            const voters = guesserAccusations[g.id] ?? [];
+            const youVoted = !!you && voters.includes(you.id);
+            return (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => onAccuseGuesser(g.id)}
+                disabled={busy}
+                className={
+                  youVoted
+                    ? "tc-btn-danger-active w-full text-sm"
+                    : "tc-btn-danger w-full text-sm"
+                }
+              >
+                {youVoted
+                  ? `Voting ${g.name} is the turncoat`
+                  : `Vote: ${g.name} is the turncoat`}{" "}
+                ({voters.length}/{votesNeededForGuesserAccusation})
+              </button>
+            );
+          })}
+          <p className="tc-muted text-center text-xs">
+            All other guessers must agree on the same suspect to end the game.
+          </p>
+        </div>
       )}
 
       {playing && accusations.length > 0 && (

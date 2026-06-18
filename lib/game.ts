@@ -186,6 +186,7 @@ export function createRoom(hostId: string): Room {
     cardVotes: {},
     passVotes: [],
     accusations: [],
+    guesserAccusations: {},
     coopOutcome: null,
     shieldUsed: false,
     createdAt: now,
@@ -247,6 +248,12 @@ export function normalizeRoom(room: Room): void {
   }
   if (!Array.isArray(room.passVotes)) room.passVotes = [];
   if (!Array.isArray(room.accusations)) room.accusations = [];
+  if (
+    typeof room.guesserAccusations !== "object" ||
+    room.guesserAccusations === null
+  ) {
+    room.guesserAccusations = {};
+  }
   if (typeof room.coopOutcome === "undefined") room.coopOutcome = null;
   if (typeof room.shieldUsed !== "boolean") room.shieldUsed = false;
 }

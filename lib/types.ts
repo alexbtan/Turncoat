@@ -70,6 +70,8 @@ export interface Room {
   passVotes: string[];
   /** Guesser ids currently accusing the spymaster of being the mole. */
   accusations: string[];
+  /** targetGuesserId -> guesser ids voting that player is the mole. */
+  guesserAccusations: Record<string, string[]>;
   /** Who won once a Turncoat mode game is finished. */
   coopOutcome: CoopOutcome | null;
   /** Final-clue shield: true once the team's one free white card is spent. */
@@ -120,6 +122,7 @@ export interface ClientRoom {
   cardVotes?: Record<number, string[]>;
   passVotes?: string[];
   accusations?: string[];
+  guesserAccusations?: Record<string, string[]>;
   coopOutcome?: CoopOutcome | null;
   /** Final-clue shield: true once the team's one free white card is spent. */
   shieldUsed?: boolean;

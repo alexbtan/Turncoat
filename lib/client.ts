@@ -199,3 +199,14 @@ export function coopAccuse(code: string, playerId: string) {
     playerId,
   });
 }
+
+export function coopAccuseGuesser(
+  code: string,
+  playerId: string,
+  targetId: string,
+) {
+  return post<{ room: ClientRoom }>(
+    `/api/rooms/${code}/coop/accuse-guesser`,
+    { playerId, targetId },
+  );
+}
