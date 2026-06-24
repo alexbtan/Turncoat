@@ -1,6 +1,6 @@
 "use client";
 
-import type { CardType, ClientCard, ClientRoom } from "@/lib/types";
+import type { ClientCard, ClientRoom } from "@/lib/types";
 
 interface Props {
   room: ClientRoom;
@@ -8,59 +8,38 @@ interface Props {
   onGuess: (index: number) => void;
 }
 
-type TileKind = "red" | "blue" | "agent" | "neutral" | "assassin";
-
-function tileKind(type: CardType | undefined): TileKind {
-  switch (type) {
-    case "red":
-    case "blue":
-    case "agent":
-    case "assassin":
-      return type;
-    default:
-      return "neutral";
-  }
-}
-
 function tileClasses(card: ClientCard, keyView: boolean): string {
-  const classes = ["tc-tile"];
-
-  if (card.revealed && card.type) {
-    classes.push(`tc-tile--${tileKind(card.type)}`, "tc-tile--revealed");
-    return classes.join(" ");
+  if (card.revealed) {
+    switch (card.type) {
+      case "red":
+        return "border-[var(--tc-red-border)] bg-[var(--tc-red)] text-[var(--tc-surface-raised)]";
+      case "blue":
+        return "border-[var(--tc-blue-border)] bg-[var(--tc-blue)] text-[var(--tc-surface-raised)]";
+      case "agent":
+        return "border-[var(--tc-green-border)] bg-[var(--tc-green)] text-[var(--tc-surface-raised)]";
+      case "assassin":
+        return "border-black bg-black text-[var(--tc-assassin-text)] ring-2 ring-[var(--tc-border-strong)]";
+      default:
+        return "border-[var(--tc-neutral-revealed-border)] bg-[var(--tc-neutral-revealed-bg)] text-[var(--tc-text)]";
+    }
   }
 
   if (keyView && card.type) {
-    classes.push(`tc-tile--${tileKind(card.type)}`, "tc-tile--key");
-    return classes.join(" ");
+    switch (card.type) {
+      case "red":
+        return "border-[var(--tc-red-border)] bg-[var(--tc-red-bg)] text-[var(--tc-red)]";
+      case "blue":
+        return "border-[var(--tc-blue-border)] bg-[var(--tc-blue-bg)] text-[var(--tc-blue)]";
+      case "agent":
+        return "border-[var(--tc-green-border)] bg-[var(--tc-green-bg)] text-[var(--tc-green)]";
+      case "assassin":
+        return "border-black bg-black text-[var(--tc-assassin-text)] font-bold ring-2 ring-[var(--tc-border-strong)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]";
+      default:
+        return "border-[var(--tc-neutral-border)] bg-[var(--tc-neutral-bg)] text-[var(--tc-muted)]";
+    }
   }
 
-  classes.push("tc-tile--hidden");
-  return classes.join(" ");
-}
-
-const TYPE_BADGE: Record<
-  TileKind,
-  { symbol: string; label: string; badgeClass: string }
-> = {
-  red: { symbol: "—", label: "Red", badgeClass: "tc-type-badge--red" },
-  blue: { symbol: "|", label: "Blue", badgeClass: "tc-type-badge--blue" },
-  agent: { symbol: "+", label: "Agent", badgeClass: "tc-type-badge--agent" },
-  neutral: { symbol: "○", label: "Bystander", badgeClass: "tc-type-badge--neutral" },
-  assassin: { symbol: "×", label: "Assassin", badgeClass: "tc-type-badge--assassin" },
-};
-
-function TypeBadge({ type }: { type: TileKind }) {
-  const { symbol, label, badgeClass } = TYPE_BADGE[type];
-  return (
-    <span
-      className={`tc-type-badge ${badgeClass}`}
-      title={label}
-      aria-label={label}
-    >
-      {symbol}
-    </span>
-  );
+  return "border-[var(--tc-border)] bg-[var(--tc-surface-raised)] text-[var(--tc-text)] hover:border-[var(--tc-border-strong)]";
 }
 
 function CardLabel({ card, keyView }: { card: ClientCard; keyView: boolean }) {
@@ -107,20 +86,6 @@ function CardLabel({ card, keyView }: { card: ClientCard; keyView: boolean }) {
     );
   }
 
-  if (card.revealed && (card.type === "red" || card.type === "blue")) {
-    const team = card.type === "red" ? "Red" : "Blue";
-    return (
-      <>
-        <span className="absolute left-0 right-0 top-0.5 text-center text-[6px] font-bold uppercase tracking-[0.1em] text-white/80 sm:text-[7px]">
-          {team}
-        </span>
-        <span className="max-w-full truncate px-0.5 leading-tight">
-          {card.word}
-        </span>
-      </>
-    );
-  }
-
   return <span className="max-w-full truncate px-0.5">{card.word}</span>;
 }
 
@@ -137,8 +102,6 @@ export function Board({ room, canGuess, onGuess }: Props) {
         const clickable = canGuess && !card.revealed;
         const voters = isCoop ? room.cardVotes?.[i] ?? [] : [];
         const hasVotes = voters.length > 0 && !card.revealed;
-        const showTypeBadge =
-          keyView && !!card.type && !card.revealed;
 
         return (
           <button
@@ -146,17 +109,13 @@ export function Board({ room, canGuess, onGuess }: Props) {
             type="button"
             disabled={!clickable}
             onClick={() => clickable && onGuess(i)}
-            className={`relative flex h-full min-h-0 w-full flex-col items-center justify-center overflow-hidden rounded px-0.5 text-center text-[9px] font-semibold uppercase leading-tight tracking-wide transition sm:text-xs ${tileClasses(
+            className={`relative flex h-full min-h-0 w-full flex-col items-center justify-center overflow-hidden rounded border px-0.5 text-center text-[9px] font-semibold uppercase leading-tight tracking-wide transition sm:text-xs ${tileClasses(
               card,
               keyView,
             )} ${clickable ? "cursor-pointer active:translate-y-px" : "cursor-default"} ${
               hasVotes ? "outline outline-2 outline-[var(--tc-border-strong)]" : ""
             }`}
           >
-            {showTypeBadge && card.type && (
-              <TypeBadge type={tileKind(card.type)} />
-            )}
-
             <CardLabel card={card} keyView={keyView} />
 
             {hasVotes && (

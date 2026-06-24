@@ -12,12 +12,12 @@
   --tc-muted: #5c584f;
   --tc-accent: #1c1b18;
   --tc-accent-hover: #3d3c38;
-  --tc-red: #d55e00;
-  --tc-red-bg: #fdebe0;
-  --tc-red-border: #e8956a;
-  --tc-blue: #0072b2;
-  --tc-blue-bg: #e0effa;
-  --tc-blue-border: #6aadce;
+  --tc-red: #cc3311;
+  --tc-red-bg: #fceae6;
+  --tc-red-border: #e88877;
+  --tc-blue: #0077bb;
+  --tc-blue-bg: #e3f2fa;
+  --tc-blue-border: #6baed6;
   --tc-green: #009e73;
   --tc-green-bg: #e0f5ee;
   --tc-green-border: #5dbfa3;
@@ -30,17 +30,8 @@
   --tc-assassin-text: #ffffff;
   --tc-warn-bg: #f0ebe0;
   --tc-warn-border: #a89878;
-  --tc-danger: #d55e00;
-  --tc-danger-bg: #fdebe0;
-  /* Card tile patterns (colour + texture for colourblind players) */
-  --tc-tile-red-pattern: rgba(213, 94, 0, 0.28);
-  --tc-tile-blue-pattern: rgba(0, 114, 178, 0.26);
-  --tc-tile-green-pattern: rgba(0, 158, 115, 0.26);
-  --tc-tile-neutral-pattern: rgba(92, 86, 72, 0.14);
-  --tc-tile-red-revealed-pattern: rgba(255, 255, 255, 0.24);
-  --tc-tile-blue-revealed-pattern: rgba(255, 255, 255, 0.24);
-  --tc-tile-green-revealed-pattern: rgba(255, 255, 255, 0.22);
-  --tc-tile-assassin-pattern: rgba(255, 255, 255, 0.18);
+  --tc-danger: #cc3311;
+  --tc-danger-bg: #fceae6;
 }
 
 /* Turncoat mode — darker “night mission” palette (html + scoped wrappers) */
@@ -54,12 +45,12 @@ html.tc-theme-turncoat {
   --tc-muted: #a39e92;
   --tc-accent: #e8e4dc;
   --tc-accent-hover: #cfc9bc;
-  --tc-red: #ff9f4a;
-  --tc-red-bg: #3d2818;
-  --tc-red-border: #b86a30;
+  --tc-red: #ff6b5a;
+  --tc-red-bg: #3a2020;
+  --tc-red-border: #b85548;
   --tc-blue: #56b4e9;
-  --tc-blue-bg: #1a3040;
-  --tc-blue-border: #3d8ab5;
+  --tc-blue-bg: #1a2e40;
+  --tc-blue-border: #4080b0;
   --tc-green: #5ddba8;
   --tc-green-bg: #1a3330;
   --tc-green-border: #3a9870;
@@ -72,16 +63,8 @@ html.tc-theme-turncoat {
   --tc-assassin-text: #ffffff;
   --tc-warn-bg: #3a3528;
   --tc-warn-border: #7a6f55;
-  --tc-danger: #ff9f4a;
-  --tc-danger-bg: #3d2818;
-  --tc-tile-red-pattern: rgba(255, 159, 74, 0.35);
-  --tc-tile-blue-pattern: rgba(86, 180, 233, 0.32);
-  --tc-tile-green-pattern: rgba(93, 219, 168, 0.3);
-  --tc-tile-neutral-pattern: rgba(207, 201, 188, 0.12);
-  --tc-tile-red-revealed-pattern: rgba(255, 255, 255, 0.2);
-  --tc-tile-blue-revealed-pattern: rgba(255, 255, 255, 0.2);
-  --tc-tile-green-revealed-pattern: rgba(255, 255, 255, 0.18);
-  --tc-tile-assassin-pattern: rgba(255, 255, 255, 0.16);
+  --tc-danger: #ff6b5a;
+  --tc-danger-bg: #3a2020;
 }
 
 html.tc-theme-turncoat body {
@@ -212,7 +195,7 @@ html.tc-theme-turncoat ::selection {
   }
 
   .tc-btn-danger:hover:not(:disabled) {
-    background: #f5dcc8;
+    background: #f5d4ce;
   }
 
   .tc-btn-danger-active {
@@ -368,221 +351,6 @@ html.tc-theme-turncoat ::selection {
   }
 
   .tc-home-panel .tc-error {
-    color: #ff9f4a;
-  }
-
-  /* ---- Board tiles: colourblind-safe palette + distinct patterns ---- */
-  .tc-tile {
-    border-width: 2px;
-    border-style: solid;
-  }
-
-  .tc-tile--hidden {
-    border-color: var(--tc-border);
-    background-color: var(--tc-surface-raised);
-    color: var(--tc-text);
-  }
-
-  .tc-tile--hidden:hover {
-    border-color: var(--tc-border-strong);
-  }
-
-  /* Key view — tinted fill + type-specific pattern */
-  .tc-tile--red.tc-tile--key {
-    border-color: var(--tc-red-border);
-    background-color: var(--tc-red-bg);
-    color: var(--tc-red);
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent 0,
-      transparent 5px,
-      var(--tc-tile-red-pattern) 5px,
-      var(--tc-tile-red-pattern) 7px
-    );
-  }
-
-  .tc-tile--blue.tc-tile--key {
-    border-color: var(--tc-blue-border);
-    background-color: var(--tc-blue-bg);
-    color: var(--tc-blue);
-    background-image: repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent 5px,
-      var(--tc-tile-blue-pattern) 5px,
-      var(--tc-tile-blue-pattern) 7px
-    );
-  }
-
-  .tc-tile--agent.tc-tile--key {
-    border-color: var(--tc-green-border);
-    background-color: var(--tc-green-bg);
-    color: var(--tc-green);
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent 0,
-        transparent 6px,
-        var(--tc-tile-green-pattern) 6px,
-        var(--tc-tile-green-pattern) 7px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent 0,
-        transparent 6px,
-        var(--tc-tile-green-pattern) 6px,
-        var(--tc-tile-green-pattern) 7px
-      );
-  }
-
-  .tc-tile--neutral.tc-tile--key {
-    border-color: var(--tc-neutral-border);
-    background-color: var(--tc-neutral-bg);
-    color: var(--tc-muted);
-    background-image: radial-gradient(
-      circle at 1px 1px,
-      var(--tc-tile-neutral-pattern) 1px,
-      transparent 0
-    );
-    background-size: 6px 6px;
-  }
-
-  .tc-tile--assassin.tc-tile--key {
-    border-color: var(--tc-border-strong);
-    background-color: var(--tc-assassin-bg);
-    color: var(--tc-assassin-text);
-    font-weight: 700;
-    background-image:
-      repeating-linear-gradient(
-        45deg,
-        transparent 0,
-        transparent 5px,
-        var(--tc-tile-assassin-pattern) 5px,
-        var(--tc-tile-assassin-pattern) 6px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        transparent 0,
-        transparent 5px,
-        var(--tc-tile-assassin-pattern) 5px,
-        var(--tc-tile-assassin-pattern) 6px
-      );
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-  }
-
-  /* Revealed — solid team colour + matching pattern overlay */
-  .tc-tile--red.tc-tile--revealed {
-    border-color: var(--tc-red-border);
-    background-color: var(--tc-red);
-    color: var(--tc-surface-raised);
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent 0,
-      transparent 5px,
-      var(--tc-tile-red-revealed-pattern) 5px,
-      var(--tc-tile-red-revealed-pattern) 7px
-    );
-  }
-
-  .tc-tile--blue.tc-tile--revealed {
-    border-color: var(--tc-blue-border);
-    background-color: var(--tc-blue);
-    color: var(--tc-surface-raised);
-    background-image: repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent 5px,
-      var(--tc-tile-blue-revealed-pattern) 5px,
-      var(--tc-tile-blue-revealed-pattern) 7px
-    );
-  }
-
-  .tc-tile--agent.tc-tile--revealed {
-    border-color: var(--tc-green-border);
-    background-color: var(--tc-green);
-    color: var(--tc-surface-raised);
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent 0,
-        transparent 6px,
-        var(--tc-tile-green-revealed-pattern) 6px,
-        var(--tc-tile-green-revealed-pattern) 7px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent 0,
-        transparent 6px,
-        var(--tc-tile-green-revealed-pattern) 6px,
-        var(--tc-tile-green-revealed-pattern) 7px
-      );
-  }
-
-  .tc-tile--neutral.tc-tile--revealed {
-    border-color: var(--tc-neutral-revealed-border);
-    background-color: var(--tc-neutral-revealed-bg);
-    color: var(--tc-text);
-    background-image: radial-gradient(
-      circle at 1px 1px,
-      var(--tc-tile-neutral-pattern) 1px,
-      transparent 0
-    );
-    background-size: 6px 6px;
-  }
-
-  .tc-tile--assassin.tc-tile--revealed {
-    border-color: var(--tc-border-strong);
-    background-color: #000;
-    color: var(--tc-assassin-text);
-    background-image:
-      repeating-linear-gradient(
-        45deg,
-        transparent 0,
-        transparent 5px,
-        var(--tc-tile-assassin-pattern) 5px,
-        var(--tc-tile-assassin-pattern) 6px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        transparent 0,
-        transparent 5px,
-        var(--tc-tile-assassin-pattern) 5px,
-        var(--tc-tile-assassin-pattern) 6px
-      );
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
-  }
-
-  .tc-type-badge {
-    @apply absolute left-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-sm border text-[8px] font-bold leading-none sm:h-4 sm:w-4 sm:text-[9px];
-  }
-
-  .tc-type-badge--red {
-    border-color: var(--tc-red-border);
-    background: var(--tc-red-bg);
-    color: var(--tc-red);
-  }
-
-  .tc-type-badge--blue {
-    border-color: var(--tc-blue-border);
-    background: var(--tc-blue-bg);
-    color: var(--tc-blue);
-  }
-
-  .tc-type-badge--agent {
-    border-color: var(--tc-green-border);
-    background: var(--tc-green-bg);
-    color: var(--tc-green);
-  }
-
-  .tc-type-badge--neutral {
-    border-color: var(--tc-neutral-border);
-    background: var(--tc-neutral-bg);
-    color: var(--tc-muted);
-  }
-
-  .tc-type-badge--assassin {
-    border-color: var(--tc-border-strong);
-    background: #000;
-    color: #fff;
+    color: #ff6b5a;
   }
 }
