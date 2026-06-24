@@ -93,6 +93,8 @@ export default function RoomPage() {
     playerId &&
     run(() => api.saveWordSettings(code, playerId, text, percent));
   const onReset = () => playerId && run(() => api.resetGame(code, playerId));
+  const onReturnToLobby = () =>
+    playerId && run(() => api.returnToLobby(code, playerId));
 
   const isCoop = room?.gameMode === "coop";
 
@@ -258,6 +260,7 @@ export default function RoomPage() {
               onAccuse={onAccuse}
               onAccuseGuesser={onAccuseGuesser}
               onReset={onReset}
+              onReturnToLobby={onReturnToLobby}
             />
           ) : (
             <GamePanel
@@ -266,6 +269,7 @@ export default function RoomPage() {
               onClue={onClue}
               onEndTurn={onEndTurn}
               onReset={onReset}
+              onReturnToLobby={onReturnToLobby}
               playerId={playerId!}
             />
           )}

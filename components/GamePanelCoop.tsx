@@ -3,6 +3,7 @@
 import type { ClientRoom } from "@/lib/types";
 import { isClueLogMessage } from "@/lib/clueHistory";
 import { ClueForm } from "./ClueForm";
+import { PlayerRoster } from "./PlayerRoster";
 import { PreviousClues } from "./PreviousClues";
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
   onAccuse: () => void;
   onAccuseGuesser: (targetId: string) => void;
   onReset: () => void;
+  onReturnToLobby: () => void;
 }
 
 export function GamePanelCoop({
@@ -25,6 +27,7 @@ export function GamePanelCoop({
   onAccuse,
   onAccuseGuesser,
   onReset,
+  onReturnToLobby,
 }: Props) {
   const you = room.you;
   const isHost = room.hostId === playerId;
@@ -56,6 +59,8 @@ export function GamePanelCoop({
         <StatBox label="Agents left" value={agentsLeft} variant="green" />
         <StatBox label="Rounds left" value={roundsLeft} variant="blue" />
       </div>
+
+      <PlayerRoster room={room} playerId={playerId} />
 
       {playing && (
         <div
@@ -141,17 +146,27 @@ export function GamePanelCoop({
             </p>
           )}
           {isHost ? (
-            <button
-              type="button"
-              onClick={onReset}
-              disabled={busy}
-              className="tc-btn-primary mt-3"
-            >
-              {busy ? "…" : "Play again"}
-            </button>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={onReset}
+                disabled={busy}
+                className="tc-btn-primary"
+              >
+                {busy ? "…" : "Play again"}
+              </button>
+              <button
+                type="button"
+                onClick={onReturnToLobby}
+                disabled={busy}
+                className="tc-btn-secondary"
+              >
+                {busy ? "…" : "Back to lobby"}
+              </button>
+            </div>
           ) : (
             <p className="tc-muted mt-2 text-sm">
-              Waiting for host to start a new mission…
+              Waiting for host to start a new mission or return to the lobby…
             </p>
           )}
         </div>
@@ -232,26 +247,6 @@ export function GamePanelCoop({
           {accusations.length < 3
             ? " — all 3 guessers must agree to end the game."
             : ""}
-        </p>
-      )}
-
-      {you && (
-        <p className="tc-muted text-center text-xs">
-          You are{" "}
-          <span
-            className={
-              isSpymaster
-                ? "font-medium text-[var(--tc-green)]"
-                : "font-medium text-[var(--tc-blue)]"
-            }
-          >
-            the {you.role}
-          </span>
-          {you.isMole && (
-            <span className="ml-1 font-bold text-[var(--tc-danger)]">
-              (turncoat)
-            </span>
-          )}
         </p>
       )}
 

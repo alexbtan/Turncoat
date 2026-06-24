@@ -276,6 +276,28 @@ export function startGame(room: Room): { ok: boolean; error?: string } {
   return { ok: true };
 }
 
+/** Return a finished game to the lobby without starting a new one. */
+export function returnToLobby(room: Room): { ok: boolean; error?: string } {
+  if (room.phase !== "finished") {
+    return { ok: false, error: "The game is not over yet." };
+  }
+
+  room.phase = "lobby";
+  room.board = [];
+  room.clue = null;
+  room.winner = null;
+  room.coopOutcome = null;
+  room.molePlayerId = null;
+  room.cardVotes = {};
+  room.passVotes = [];
+  room.accusations = [];
+  room.guesserAccusations = {};
+  room.shieldUsed = false;
+  room.roundsRemaining = 0;
+  addLog(room, "Returned to the lobby.");
+  return { ok: true };
+}
+
 export function submitClue(
   room: Room,
   player: Player,

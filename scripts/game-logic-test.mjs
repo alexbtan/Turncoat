@@ -16,6 +16,7 @@ import {
   pickBoardWords,
   randomizeTeams,
   setWordSettings,
+  returnToLobby,
   startGame,
   submitClue,
   toClientRoom,
@@ -233,6 +234,34 @@ test("coop max rounds setting applies on start", () => {
   assert.equal(room.maxRounds, 5);
   startCoopGame(room);
   assert.equal(room.roundsRemaining, 5);
+});
+
+test("returnToLobby resets finished game while keeping players", () => {
+  const hostId = newPlayerId();
+  const room = createRoom(hostId);
+  room.players.push(
+    { id: hostId, name: "H", team: "red", role: "spymaster" },
+    { id: "o", name: "O", team: "red", role: "operative" },
+    { id: "s", name: "S", team: "blue", role: "spymaster" },
+    { id: "p", name: "P", team: "blue", role: "operative" },
+  );
+  startGame(room);
+  room.phase = "finished";
+  room.winner = "red";
+  room.molePlayerId = "x";
+  room.accusations = ["a"];
+  room.guesserAccusations = { g1: ["a"] };
+
+  assert.ok(returnToLobby(room).ok);
+  assert.equal(room.phase, "lobby");
+  assert.equal(room.board.length, 0);
+  assert.equal(room.winner, null);
+  assert.equal(room.molePlayerId, null);
+  assert.deepEqual(room.accusations, []);
+  assert.deepEqual(room.guesserAccusations, {});
+  assert.equal(room.players.length, 4);
+  assert.equal(room.players[0].role, "spymaster");
+  assert.equal(returnToLobby(room).ok, false);
 });
 
 test("lobby helpers", () => {

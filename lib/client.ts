@@ -104,6 +104,10 @@ export function resetGame(code: string, playerId: string) {
   return post<{ room: ClientRoom }>(`/api/rooms/${code}/reset`, { playerId });
 }
 
+export function returnToLobby(code: string, playerId: string) {
+  return post<{ room: ClientRoom }>(`/api/rooms/${code}/lobby`, { playerId });
+}
+
 export function addTestPlayers(code: string, playerId: string) {
   return post<{ room: ClientRoom }>(`/api/rooms/${code}/test-players`, {
     playerId,
